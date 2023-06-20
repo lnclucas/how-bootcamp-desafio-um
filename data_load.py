@@ -24,7 +24,8 @@ class DataLoad:
 
         self.df_file.insert(1, 'insert_datetime', self.current_datetime)
 
-        if file_type == 'NBA':
+        if file_type == 'nba':
+            schema = 'nba'
             if "Payroll" in file_name:
                 table_name = 'nba_payroll'
                 self.remove_caracters('payroll')
@@ -46,7 +47,8 @@ class DataLoad:
                 raise Exception("File not accept")
 
             self.df_file = self.df_file.drop(columns=['Unnamed: 0'])
-        elif file_type == 'TopTec':
+        elif file_type == 'toptec':
+            schema = 'toptec'
             table_name = 'startups_hiring'
 
             self.df_file['jobs'] = self.df_file['jobs'].astype(str)
@@ -57,7 +59,8 @@ class DataLoad:
         else:
             raise Exception("File type not accept")
 
-        self.df_file.to_sql(name=table_name, schema="public", con=self.postgres_conn, if_exists="replace", index=True,
+        postgres.creat_schema(schema)
+        self.df_file.to_sql(name=table_name, schema=schema, con=self.postgres_conn, if_exists="replace", index=True,
                                 index_label="id")
         postgres.create_pk(table_name, "id")
 
